@@ -25,6 +25,15 @@ namespace RB444.Models.Model
         public long currentTime { get; set; }
     }
 
+    public class MatchesReturnResponse
+    {
+        public string message { get; set; }
+        public int code { get; set; }
+        public bool error { get; set; }
+        public List<MatchesDataByApi> data { get; set; }
+        public long currentTime { get; set; }
+    }
+
     public class PriorityStatus
     {
         public int PriorityId { get; set; }
@@ -64,9 +73,19 @@ namespace RB444.Models.Model
     {
         public long eventId { get; set; }
         public string eventName { get; set; }
+        public DateTime eventDate { get; set; }
+        public long SeriesId { get; set; }
+        public string SeriesName { get; set; }
         public string marketId { get; set; }
         public string marketName { get; set; }
         public string marketType { get; set; }
+        public long selectionId1 { get; set; }
+        public long selectionId2 { get; set; }
+        public long selectionId3 { get; set; }
+        public string runnerName1 { get; set; }
+        public string runnerName2 { get; set; }
+        public string runnerName3 { get; set; }
+
     }
 
     public class Outcome

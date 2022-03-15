@@ -97,6 +97,49 @@ namespace RB444.Api.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [HttpPost, Route("ResetPassword")]
+        public async Task<CommonReturnResponse> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                //return View(model);
+                return new CommonReturnResponse { Data = model, Message = CustomMessageStatus.InvalidModelState, IsSuccess = false, Status = ResponseStatusCode.NOTACCEPTABLE };
+            }
+
+            try
+            {
+                var user = await _userManager.FindByIdAsync(model.UserId.ToString());
+                if (user == null)
+                {
+                    // Don't reveal that the user does not exist
+                    // return RedirectToAction(nameof(ResetPasswordConfirmation));
+                    return new CommonReturnResponse { Data = user, Message = CustomMessageStatus.userNotFound, IsSuccess = false, Status = ResponseStatusCode.NOTFOUND };
+                }
+                var isOldPassword = await _userManager.CheckPasswordAsync(user, model.OldPassword);
+                if (isOldPassword)
+                {
+                    var Code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                    var result = await _userManager.ResetPasswordAsync(user, Code, model.Password);
+                    if (result.Succeeded)
+                    {
+                        //return RedirectToAction(nameof(ResetPasswordConfirmation));
+                        return new CommonReturnResponse { Data = result, Message = CustomMessageStatus.resetPwd, IsSuccess = true, Status = ResponseStatusCode.OK };
+                    }
+                    return new CommonReturnResponse { Data = result.Errors, Message = result.ToString(), IsSuccess = false, Status = ResponseStatusCode.NOTACCEPTABLE };
+                }
+                else
+                {
+                    return new CommonReturnResponse { Data = null, Message = CustomMessageStatus.oldPwd, IsSuccess = false, Status = ResponseStatusCode.NOTACCEPTABLE };
+                }
+            }
+            catch (Exception ex)
+            {
+                //_logger.LogException("Exception : AccountController : ResetPassword()", ex);
+                return new CommonReturnResponse { Data = false, Message = ex.InnerException != null ? ex.InnerException.Message : ex.Message, IsSuccess = false, Status = ResponseStatusCode.EXCEPTION };
+            }
+        }
+
         [HttpGet, Route("UpdateAssignCoin")]
         public async Task<CommonReturnResponse> UpdateAssignCoin(long AssignCoin, int LoginUserId)
         {
